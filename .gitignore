@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+
+# Environment
+.env
+backend/.env
+cloud_functions/asset_ingestion/.env
+
+# Data (generated — re-run ingest scripts to populate)
+data/assets/
+data/metadata/*.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+_write_test.txt
