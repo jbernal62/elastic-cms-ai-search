@@ -1,0 +1,2191 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R 6 0 R 7 0 R 8 0 R 9 0 R 10 0 R 11 0 R 12 0 R 13 0 R 14 0 R 15 0 R 16 0 R 17 0 R 18 0 R 19 0 R 20 0 R] /Count 18 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 21 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 22 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 23 0 R >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 24 0 R >>
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 25 0 R >>
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 26 0 R >>
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 27 0 R >>
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 28 0 R >>
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 29 0 R >>
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 30 0 R >>
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 31 0 R >>
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 32 0 R >>
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 33 0 R >>
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 34 0 R >>
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 35 0 R >>
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 36 0 R >>
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 37 0 R >>
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 39 0 R >> >> /Contents 38 0 R >>
+endobj
+21 0 obj
+<< /Length 2084 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 1/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+(CMS AI SEARCH - ELASTICSEARCH ARCHITECTURE DEEP DIVE) Tj
+T*
+(----------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(1. SCOPE AND GROUND TRUTH) Tj
+T*
+(-------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(This document is based on the current implementation in `cms-ai-search` and explains the system from) Tj
+T*
+( an Elasticsearch-first perspective, including:) Tj
+T*
+() Tj
+T*
+(- End-to-end data and query flow) Tj
+T*
+(- Embedding generation architecture) Tj
+T*
+(- Why Elasticsearch native inference is not used in this version) Tj
+T*
+(- Where inference happens today) Tj
+T*
+(- Exact index structure \(all indices\)) Tj
+T*
+(- Logs, views, and analytics model) Tj
+T*
+(- Keyword search vs hybrid search behavior) Tj
+T*
+(- Chunk configuration and model limits) Tj
+T*
+(- Why the UI shows images and where the image source actually comes from) Tj
+T*
+() Tj
+T*
+(All statements below are tied to concrete code paths from this repository.) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(2. SYSTEM ARCHITECTURE \(HIGH-LEVEL\)) Tj
+T*
+(-----------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(The application has three logical layers:) Tj
+T*
+() Tj
+T*
+(1. Frontend \(React/Vite\)) Tj
+T*
+(2. Backend API \(FastAPI + local embedding runtime\)) Tj
+T*
+(3. Elasticsearch \(Elastic Cloud deployment with four main indices\)) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(2.1 FRONTEND RESPONSIBILITIES) Tj
+T*
+(-----------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- Sends search requests to backend API \(`/api/search`, `/api/search/keyword`, `/api/search/image`,) Tj
+T*
+(`/api/search/compare`\)) Tj
+T*
+(- Shows result cards and thumbnails) Tj
+T*
+(- Calls analytics logging endpoints for click tracking) Tj
+T*
+(- Renders dashboards from Elasticsearch aggregations exposed by backend routes) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(2.2 BACKEND RESPONSIBILITIES) Tj
+T*
+(----------------------------) Tj
+T*
+ET
+endstream
+endobj
+22 0 obj
+<< /Length 1754 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 2/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- Connects to Elastic Cloud using `cloud_id` + `api_key`) Tj
+T*
+(- Generates embeddings locally using `sentence-transformers`) Tj
+T*
+(- Executes Elasticsearch keyword, kNN, hybrid, and aggregation queries) Tj
+T*
+(- Logs search and interaction events into dedicated indices) Tj
+T*
+(- Provides content, related content, and recommendation APIs) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(2.3 ELASTICSEARCH RESPONSIBILITIES) Tj
+T*
+(----------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- Stores content metadata + vectors) Tj
+T*
+(- Executes BM25, kNN, and RRF rank fusion queries) Tj
+T*
+(- Stores search logs, click logs, and view logs) Tj
+T*
+(- Powers dashboard aggregations \(hit rate, zero results, geo, trends, KPIs\)) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(3. CONFIGURATION AND RUNTIME TOPOLOGY) Tj
+T*
+(-------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Core config values are in `backend/config.py`.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(3.1 CONNECTION CONFIG) Tj
+T*
+(---------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `elastic_cloud_id`) Tj
+T*
+(- `elastic_api_key`) Tj
+T*
+() Tj
+T*
+(Backend client is built once and cached \(`lru_cache`\) in) Tj
+T*
+(`backend/services/elasticsearch_service.py`.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(3.2 INDEX NAMES) Tj
+T*
+(---------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- Content index: `cms-content`) Tj
+T*
+(- Search logs: `cms-search-logs`) Tj
+T*
+(- Click logs: `cms-click-logs`) Tj
+T*
+(- Content views: `cms-content-views`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(3.3 EMBEDDING MODEL CONFIG) Tj
+T*
+(--------------------------) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+23 0 obj
+<< /Length 2011 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 3/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+(- Text model: `all-MiniLM-L6-v2`) Tj
+T*
+(- CLIP model: `clip-ViT-B-32`) Tj
+T*
+(- Text vector dims: `384`) Tj
+T*
+(- Image vector dims: `512`) Tj
+T*
+() Tj
+T*
+(These values must match index mapping dimensions for dense vectors.) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(4. WHERE INFERENCE HAPPENS TODAY) Tj
+T*
+(--------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(4.1 CURRENT INFERENCE LOCATION) Tj
+T*
+(------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Inference does not happen inside Elasticsearch in this implementation.) Tj
+T*
+() Tj
+T*
+(Inference is executed in the backend process:) Tj
+T*
+() Tj
+T*
+(- `backend/models/embeddings.py`) Tj
+T*
+(  - loads `SentenceTransformer` models) Tj
+T*
+(  - encodes text and image inputs) Tj
+T*
+(  - returns vectors to routers/services) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(4.2 EFFECTIVE INFERENCE ENDPOINTS IN THIS ARCHITECTURE) Tj
+T*
+(------------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(There is no Elasticsearch `/_inference/...` call in this codebase.) Tj
+T*
+() Tj
+T*
+(The practical inference entrypoints are API routes that call local embedding code:) Tj
+T*
+() Tj
+T*
+(- `GET /api/search` \(text embedding for hybrid search\)) Tj
+T*
+(- `POST /api/search/image` \(image bytes to CLIP embedding\)) Tj
+T*
+(- `GET /api/search/text-to-image` \(text to CLIP text embedding\)) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(4.3 WHY ELASTICSEARCH NATIVE MODEL INFERENCE IS NOT BEING USED) Tj
+T*
+(--------------------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(From the current code, this architecture is intentionally app-side inference:) Tj
+T*
+() Tj
+T*
+(1. Simpler deployment model for demo/prototype workflows) Tj
+T*
+(2. Model control stays in Python runtime) Tj
+T*
+(3. Direct compatibility with local data ingestion scripts) Tj
+T*
+ET
+endstream
+endobj
+24 0 obj
+<< /Length 1516 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 4/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+(Tradeoff:) Tj
+T*
+() Tj
+T*
+(1. Inference scaling is tied to API compute layer) Tj
+T*
+(2. No ES-native model lifecycle orchestration in cluster) Tj
+T*
+(3. More moving parts to operate at production scale) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(5. END-TO-END INGESTION FLOW) Tj
+T*
+(----------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Ingestion consists of three stages.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(5.1 STAGE A - METADATA COLLECTION) Tj
+T*
+(---------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Script: `backend/scripts/download_assets.py`) Tj
+T*
+() Tj
+T*
+(This script fetches metadata from:) Tj
+T*
+() Tj
+T*
+(- Unsplash) Tj
+T*
+(- Pexels) Tj
+T*
+(- Pixabay) Tj
+T*
+(- Freesound) Tj
+T*
+(- Wikipedia) Tj
+T*
+(- arXiv) Tj
+T*
+(- Gutenberg) Tj
+T*
+(- Internet Archive) Tj
+T*
+() Tj
+T*
+(It writes merged metadata into:) Tj
+T*
+() Tj
+T*
+(- `data/metadata/all_assets.json`) Tj
+T*
+() Tj
+T*
+(Important detail:) Tj
+T*
+() Tj
+T*
+(- The system stores remote media URLs \(`url`, `thumbnail_url`, `preview_url`\)) Tj
+T*
+(- It does not copy or persist media binaries into your local repo or Elasticsearch blob fields) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(5.2 STAGE B - VECTOR GENERATION) Tj
+T*
+(-------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Script: `backend/scripts/ingest_data.py`) Tj
+T*
+() Tj
+T*
+(For each asset:) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+25 0 obj
+<< /Length 1605 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 5/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(1. Build text string: `title + description + tags`) Tj
+T*
+(2. Truncate text to first `512` characters) Tj
+T*
+(3. Batch-encode text with MiniLM \(normalized embeddings, batch size 64\)) Tj
+T*
+(4. For images with `thumbnail_url`, download image and create CLIP image embedding) Tj
+T*
+() Tj
+T*
+(Result:) Tj
+T*
+() Tj
+T*
+(- Every document gets `text_embedding`) Tj
+T*
+(- Image documents may additionally get `image_embedding`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(5.3 STAGE C - ELASTICSEARCH INDEXING) Tj
+T*
+(------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Same script uses Elasticsearch bulk API:) Tj
+T*
+() Tj
+T*
+(- Chunk size for bulk indexing: `100` \(`BATCH_SIZE = 100`\)) Tj
+T*
+(- Index target: `cms-content`) Tj
+T*
+() Tj
+T*
+(Document stored includes metadata and vectors.) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(6. INDEX DESIGN: COMPLETE STRUCTURE) Tj
+T*
+(-----------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(All mappings are defined in `backend/scripts/setup_indices.py`.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(6.1 `CMS-CONTENT` INDEX) Tj
+T*
+(-----------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Purpose: primary retrieval index for content search and recommendation.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(SETTINGS) Tj
+T*
+(--------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `number_of_shards: 2`) Tj
+T*
+(- `number_of_replicas: 1`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(FIELD GROUPS) Tj
+T*
+(------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Text fields:) Tj
+T*
+ET
+endstream
+endobj
+26 0 obj
+<< /Length 1325 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 6/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+(- `title` \(text, analyzer `english`, plus `title.raw` keyword\)) Tj
+T*
+(- `description` \(text, analyzer `english`\)) Tj
+T*
+() Tj
+T*
+(Structured keyword fields:) Tj
+T*
+() Tj
+T*
+(- `content_type`) Tj
+T*
+(- `tags`) Tj
+T*
+(- `category`) Tj
+T*
+(- `source`) Tj
+T*
+(- `author`) Tj
+T*
+(- `license`) Tj
+T*
+(- `url`) Tj
+T*
+(- `thumbnail_url`) Tj
+T*
+(- `preview_url`) Tj
+T*
+(- `file_type`) Tj
+T*
+(- `region`) Tj
+T*
+() Tj
+T*
+(Date:) Tj
+T*
+() Tj
+T*
+(- `created_at` \(date\)) Tj
+T*
+() Tj
+T*
+(Geo:) Tj
+T*
+() Tj
+T*
+(- `geo_location` \(geo_point\)) Tj
+T*
+() Tj
+T*
+(Numeric:) Tj
+T*
+() Tj
+T*
+(- `view_count`) Tj
+T*
+(- `download_count`) Tj
+T*
+(- `duration_seconds`) Tj
+T*
+(- `width`) Tj
+T*
+(- `height`) Tj
+T*
+() Tj
+T*
+(Vectors:) Tj
+T*
+() Tj
+T*
+(- `text_embedding` \(dense_vector, dims 384, indexed, cosine\)) Tj
+T*
+(- `image_embedding` \(dense_vector, dims 512, indexed, cosine\)) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(6.2 `CMS-SEARCH-LOGS` INDEX) Tj
+T*
+(---------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Purpose: telemetry of search requests.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(SETTINGS) Tj
+T*
+(--------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `number_of_shards: 1`) Tj
+T*
+ET
+endstream
+endobj
+27 0 obj
+<< /Length 1336 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 7/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(- `number_of_replicas: 1`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(FIELDS) Tj
+T*
+(------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `query_text` \(text + `query_text.raw` keyword\)) Tj
+T*
+(- `search_type` \(keyword: keyword/hybrid/image\)) Tj
+T*
+(- `result_count` \(integer\)) Tj
+T*
+(- `response_time_ms` \(integer\)) Tj
+T*
+(- `user_id` \(keyword\)) Tj
+T*
+(- `session_id` \(keyword\)) Tj
+T*
+(- `region` \(keyword\)) Tj
+T*
+(- `geo` \(geo_point\)) Tj
+T*
+(- `timestamp` \(date\)) Tj
+T*
+(- `filters_used` \(keyword\)) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(6.3 `CMS-CLICK-LOGS` INDEX) Tj
+T*
+(--------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Purpose: clickthrough events.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(SETTINGS) Tj
+T*
+(--------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `number_of_shards: 1`) Tj
+T*
+(- `number_of_replicas: 1`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(FIELDS) Tj
+T*
+(------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `content_id`) Tj
+T*
+(- `query_text` \(text + raw keyword\)) Tj
+T*
+(- `position`) Tj
+T*
+(- `search_type`) Tj
+T*
+(- `user_id`) Tj
+T*
+(- `session_id`) Tj
+T*
+(- `region`) Tj
+T*
+(- `timestamp`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(6.4 `CMS-CONTENT-VIEWS` INDEX) Tj
+T*
+(-----------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+28 0 obj
+<< /Length 1371 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 8/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(Purpose: content engagement and referrer tracking.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(SETTINGS) Tj
+T*
+(--------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `number_of_shards: 1`) Tj
+T*
+(- `number_of_replicas: 1`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(FIELDS) Tj
+T*
+(------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `content_id`) Tj
+T*
+(- `content_type`) Tj
+T*
+(- `category`) Tj
+T*
+(- `user_id`) Tj
+T*
+(- `session_id`) Tj
+T*
+(- `region`) Tj
+T*
+(- `referrer` \(search/recommendation/direct\)) Tj
+T*
+(- `time_spent_seconds`) Tj
+T*
+(- `timestamp`) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(7. QUERY PROCESSING IN ELASTICSEARCH) Tj
+T*
+(------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(7.1 KEYWORD SEARCH \(BM25 ONLY\)) Tj
+T*
+(------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Path:) Tj
+T*
+() Tj
+T*
+(- API: `GET /api/search/keyword`) Tj
+T*
+(- Service: `keyword_search\(...\)`) Tj
+T*
+() Tj
+T*
+(ES behavior:) Tj
+T*
+() Tj
+T*
+(- `multi_match` over `title^3`, `description^2`, `tags^2`) Tj
+T*
+(- optional `bool.filter` for `content_type`, `category`, `region`) Tj
+T*
+(- no vectors) Tj
+T*
+() Tj
+T*
+(Use case:) Tj
+T*
+() Tj
+T*
+(- exact or near-exact lexical matching) Tj
+T*
+(- deterministic term relevance) Tj
+T*
+ET
+endstream
+endobj
+29 0 obj
+<< /Length 1526 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 9/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(7.2 HYBRID SEARCH \(BM25 + KNN + RRF\)) Tj
+T*
+(------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Path:) Tj
+T*
+() Tj
+T*
+(- API: `GET /api/search`) Tj
+T*
+(- Service: `hybrid_search\(...\)`) Tj
+T*
+() Tj
+T*
+(Pipeline:) Tj
+T*
+() Tj
+T*
+(1. Query text -> MiniLM embedding) Tj
+T*
+(2. ES query includes:) Tj
+T*
+(   - BM25 `multi_match`) Tj
+T*
+(   - kNN on `text_embedding`) Tj
+T*
+(3. ES rank fusion via `rank.rrf`) Tj
+T*
+() Tj
+T*
+(Current tuning:) Tj
+T*
+() Tj
+T*
+(- `k = size`) Tj
+T*
+(- `num_candidates = max\(size * 5, 100\)`) Tj
+T*
+(- `rank_window_size = 100`) Tj
+T*
+(- `rank_constant = 60`) Tj
+T*
+() Tj
+T*
+(Practical effect:) Tj
+T*
+() Tj
+T*
+(- captures semantic relevance even when terms do not overlap exactly) Tj
+T*
+(- can recover meaning-based matches keyword search misses) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(7.3 IMAGE SIMILARITY SEARCH) Tj
+T*
+(---------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Path:) Tj
+T*
+() Tj
+T*
+(- API: `POST /api/search/image`) Tj
+T*
+(- Service: `image_similarity_search\(...\)`) Tj
+T*
+() Tj
+T*
+(Pipeline:) Tj
+T*
+() Tj
+T*
+(1. Uploaded bytes -> CLIP image embedding) Tj
+T*
+(2. kNN query on `image_embedding`) Tj
+T*
+(3. Optional filters by content type) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(7.4 TEXT-TO-IMAGE SEARCH \(CROSS-MODAL\)) Tj
+T*
+(--------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+30 0 obj
+<< /Length 1582 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 10/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(Path:) Tj
+T*
+() Tj
+T*
+(- API: `GET /api/search/text-to-image`) Tj
+T*
+(- Service: `text_to_image_search\(...\)`) Tj
+T*
+() Tj
+T*
+(Pipeline:) Tj
+T*
+() Tj
+T*
+(1. Text query encoded by CLIP text encoder) Tj
+T*
+(2. kNN against `image_embedding`) Tj
+T*
+(3. hard filter `content_type = image`) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(8. KEYWORD VS HYBRID SEARCH: MAIN DIFFERENCES) Tj
+T*
+(---------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(8.1 MATCHING BEHAVIOR) Tj
+T*
+(---------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Keyword \(BM25\):) Tj
+T*
+() Tj
+T*
+(- driven by token overlap, tf-idf style term weighting, field boosts) Tj
+T*
+(- fails when user wording and document wording differ significantly) Tj
+T*
+() Tj
+T*
+(Hybrid \(BM25 + vectors + RRF\):) Tj
+T*
+() Tj
+T*
+(- combines lexical precision with semantic recall) Tj
+T*
+(- can retrieve conceptually related content with low lexical overlap) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(8.2 RELEVANCE PROFILE) Tj
+T*
+(---------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Keyword:) Tj
+T*
+() Tj
+T*
+(- strong precision for exact matches) Tj
+T*
+(- weaker for paraphrases or intent-level searches) Tj
+T*
+() Tj
+T*
+(Hybrid:) Tj
+T*
+() Tj
+T*
+(- stronger recall and intent matching) Tj
+T*
+(- possible semantic false positives if vector space is broad) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(8.3 OPERATIONAL PROFILE) Tj
+T*
+(-----------------------) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+31 0 obj
+<< /Length 1517 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 11/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+(Keyword:) Tj
+T*
+() Tj
+T*
+(- lower compute overhead) Tj
+T*
+(- no embedding generation latency) Tj
+T*
+() Tj
+T*
+(Hybrid:) Tj
+T*
+() Tj
+T*
+(- extra embedding latency in API layer) Tj
+T*
+(- kNN and fusion adds query complexity) Tj
+T*
+(- better user experience for natural language discovery) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(8.4 UI SUPPORT FOR COMPARISON) Tj
+T*
+(-----------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(`/api/search/compare` returns keyword and hybrid side-by-side plus IDs found only by hybrid.) Tj
+T*
+() Tj
+T*
+(This directly demonstrates semantic lift in your frontend compare page.) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(9. LOGGING, VIEWS, AND ANALYTICS DATA MODEL) Tj
+T*
+(-------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(9.1 SEARCH LOGGING) Tj
+T*
+(------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Search APIs call `_log\(...\)` in router:) Tj
+T*
+() Tj
+T*
+(- records query text, type, result count, latency, region, user/session, timestamp) Tj
+T*
+(- indexed into `cms-search-logs`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(9.2 CLICK LOGGING) Tj
+T*
+(-----------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Frontend `logClick\(...\)` posts to:) Tj
+T*
+() Tj
+T*
+(- `POST /api/analytics/log-click`) Tj
+T*
+() Tj
+T*
+(Backend indexes click events into:) Tj
+T*
+() Tj
+T*
+(- `cms-click-logs`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+32 0 obj
+<< /Length 1901 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 12/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(9.3 VIEW LOGGING) Tj
+T*
+(----------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Content detail request `GET /api/content/{doc_id}` logs view event into:) Tj
+T*
+() Tj
+T*
+(- `cms-content-views`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(9.4 DASHBOARD QUERY BEHAVIOR) Tj
+T*
+(----------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Analytics endpoints use Elasticsearch aggregations:) Tj
+T*
+() Tj
+T*
+(- hit rate over time from search logs) Tj
+T*
+(- zero-result terms from `query_text.raw`) Tj
+T*
+(- region distribution + top queries) Tj
+T*
+(- engagement trends by category over date histograms) Tj
+T*
+(- content type breakdown and KPI rollups) Tj
+T*
+() Tj
+T*
+(Important implementation detail:) Tj
+T*
+() Tj
+T*
+(- dashboard "top content" currently sorts by `view_count` in `cms-content`, not by real-time) Tj
+T*
+(aggregated views from `cms-content-views`) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(10. CHUNKING CONFIGURATION AND MODEL LIMITS) Tj
+T*
+(-------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(You asked specifically about chunking. In this codebase, there is no multi-chunk document chunker) Tj
+T*
+(\(no paragraph windows, no overlap pipeline\).) Tj
+T*
+() Tj
+T*
+(Current behavior is single text string per asset:) Tj
+T*
+() Tj
+T*
+(1. Concatenate title, description, tags) Tj
+T*
+(2. Truncate to 512 characters) Tj
+T*
+(3. Embed once) Tj
+T*
+() Tj
+T*
+(This is not RAG-style chunking.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(10.1 CURRENT LIMITS IN PRACTICE) Tj
+T*
+(-------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- Long documents lose context beyond 512 chars) Tj
+T*
+(- One embedding per asset reduces granularity for long articles/papers/books) Tj
+T*
+(- No chunk-level retrieval means fewer precise long-form matches) Tj
+T*
+ET
+endstream
+endobj
+33 0 obj
+<< /Length 1766 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 13/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(10.2 MODEL CONSTRAINTS) Tj
+T*
+(----------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `all-MiniLM-L6-v2`:) Tj
+T*
+(  - 384-dim vectors) Tj
+T*
+(  - efficient, but lower semantic capacity than larger embedding models) Tj
+T*
+(- `clip-ViT-B-32`:) Tj
+T*
+(  - 512-dim image/text embedding space) Tj
+T*
+(  - good cross-modal baseline but not state-of-the-art for all domains) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(10.3 ELASTICSEARCH CONSTRAINTS TO KEEP ALIGNED) Tj
+T*
+(----------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- Index dense_vector dims must match model output dims) Tj
+T*
+(- Changing model family usually requires:) Tj
+T*
+(  - new mapping or new index) Tj
+T*
+(  - backfill/reindex with regenerated embeddings) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(11. WHY THE UI SHOWS IMAGES \(URL VS IMPORTED FILES\)) Tj
+T*
+(---------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(The UI is showing URL-based thumbnails/images, not importing binaries into the frontend bundle.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(11.1 WHAT GETS INDEXED) Tj
+T*
+(----------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(In metadata + ingestion, each asset stores URL fields:) Tj
+T*
+() Tj
+T*
+(- `url`) Tj
+T*
+(- `thumbnail_url`) Tj
+T*
+(- `preview_url`) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(11.2 WHAT THE UI RENDERS) Tj
+T*
+(------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- `ResultCard` uses `src={result.thumbnail_url}`) Tj
+T*
+(- `RecommendationPanel` uses `src={r.thumbnail_url}`) Tj
+T*
+(- Content detail for images uses `src={content.url || content.thumbnail_url}`) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+34 0 obj
+<< /Length 1836 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 14/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(Therefore:) Tj
+T*
+() Tj
+T*
+(1. Browser requests remote image URLs directly) Tj
+T*
+(2. Elasticsearch stores metadata links, not image blobs) Tj
+T*
+(3. "Image in UI" means remote render via URL, not local import) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(11.3 WHY THIS MATTERS OPERATIONALLY) Tj
+T*
+(-----------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(- Fast implementation and smaller storage footprint) Tj
+T*
+(- But dependent on source URL availability and CORS/network reliability) Tj
+T*
+(- Broken source URLs produce missing thumbnails in UI) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(12. ELASTICSEARCH SIDE: BEHIND-THE-SCENES MECHANICS) Tj
+T*
+(---------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(12.1 HYBRID QUERY INTERNALS IN THIS APP) Tj
+T*
+(---------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(The hybrid query sends both lexical and vector retrieval in one ES search request, then uses built-) Tj
+T*
+(in RRF rank phase.) Tj
+T*
+() Tj
+T*
+(Implications:) Tj
+T*
+() Tj
+T*
+(- Candidate generation comes from two relevance channels) Tj
+T*
+(- Final ordering rewards documents ranked well by either or both channels) Tj
+T*
+(- Reduces brittleness of pure BM25) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(12.2 FILTER PROPAGATION) Tj
+T*
+(-----------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Filters from request params are added to:) Tj
+T*
+() Tj
+T*
+(- `bool.filter` for lexical branch) Tj
+T*
+(- kNN `filter` for vector branch) Tj
+T*
+() Tj
+T*
+(This keeps retrieval constrained consistently across both channels.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(12.3 SOURCE PAYLOAD OPTIMIZATION) Tj
+T*
+(--------------------------------) Tj
+T*
+() Tj
+T*
+ET
+endstream
+endobj
+35 0 obj
+<< /Length 1806 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 15/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+(Search responses exclude vector fields:) Tj
+T*
+() Tj
+T*
+(- `_source.excludes: ["text_embedding", "image_embedding"]`) Tj
+T*
+() Tj
+T*
+(This reduces payload size and avoids transferring large vectors to UI.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(12.4 RECOMMENDATION PATTERNS) Tj
+T*
+(----------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Two recommendation modes:) Tj
+T*
+() Tj
+T*
+(1. More Like This \(`title`, `description`, `tags`\)) Tj
+T*
+(2. Vector kNN recommendations using stored `text_embedding`) Tj
+T*
+() Tj
+T*
+(This dual strategy gives lexical and semantic recommendation options.) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(13. KNOWN GAPS AND PRACTICAL IMPROVEMENTS) Tj
+T*
+(-----------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(13.1 INFERENCE ARCHITECTURE GAP) Tj
+T*
+(-------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Current: local app inference.) Tj
+T*
+() Tj
+T*
+(If you need centralized Elasticsearch-native inference:) Tj
+T*
+() Tj
+T*
+(1. Deploy supported models/inference endpoints in ES) Tj
+T*
+(2. Move embedding generation from app scripts to ES inference pipeline or query-time inference) Tj
+T*
+(endpoint) Tj
+T*
+(3. Validate parity in vector dims and similarity settings) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(13.2 CHUNKING GAP) Tj
+T*
+(-----------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Current single-vector-per-asset design is weak for long documents.) Tj
+T*
+() Tj
+T*
+(Recommended:) Tj
+T*
+() Tj
+T*
+(1. Add chunk index \(for chunk-level vectors\)) Tj
+T*
+(2. Store parent asset ID + chunk text + chunk order) Tj
+T*
+(3. Retrieve chunks semantically, then collapse/group by parent asset) Tj
+T*
+ET
+endstream
+endobj
+36 0 obj
+<< /Length 2030 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 16/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(13.3 ANALYTICS MODELING GAP) Tj
+T*
+(---------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Current analytics mostly read search logs and view logs; click logs are underused in dashboards.) Tj
+T*
+() Tj
+T*
+(Recommended:) Tj
+T*
+() Tj
+T*
+(1. Add CTR dashboards \(clicks / searches by query/type\)) Tj
+T*
+(2. Add query reformulation funnels) Tj
+T*
+(3. Add content-type-level conversion metrics) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(13.4 PRODUCTION HARDENING) Tj
+T*
+(-------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Recommended:) Tj
+T*
+() Tj
+T*
+(1. ILM policies for log indices) Tj
+T*
+(2. index templates and aliases for versioned migrations) Tj
+T*
+(3. explicit refresh and bulk retry/backoff strategy) Tj
+T*
+(4. SLA metrics for embedding latency, kNN latency, and error rates) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(14. EXACT PROCESS WALKTHROUGH \(STEP-BY-STEP\)) Tj
+T*
+(--------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(This sequence describes one hybrid search request from user input to rendered results.) Tj
+T*
+() Tj
+T*
+(1. User enters query in UI Search page.) Tj
+T*
+(2. Frontend calls `GET /api/search?q=...`.) Tj
+T*
+(3. Backend router starts timer.) Tj
+T*
+(4. Backend generates MiniLM query embedding.) Tj
+T*
+(5. Backend sends Elasticsearch request with:) Tj
+T*
+(   - BM25 multi_match query) Tj
+T*
+(   - kNN on `text_embedding`) Tj
+T*
+(   - RRF rank fusion) Tj
+T*
+(   - optional filters) Tj
+T*
+(6. Elasticsearch returns ranked hits.) Tj
+T*
+(7. Backend formats hits, excluding vectors.) Tj
+T*
+(8. Backend logs search event to `cms-search-logs`.) Tj
+T*
+(9. Frontend renders cards with `thumbnail_url` images from source URLs.) Tj
+T*
+(10. If user clicks a result:) Tj
+T*
+(    - frontend sends click log) Tj
+T*
+(    - backend stores event in `cms-click-logs`) Tj
+T*
+(11. If user opens detail page:) Tj
+T*
+ET
+endstream
+endobj
+37 0 obj
+<< /Length 2054 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 17/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(    - backend logs content view in `cms-content-views`) Tj
+T*
+(12. Dashboard later aggregates these logs for KPIs and trends.) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(15. ANSWERING YOUR CORE QUESTIONS DIRECTLY) Tj
+T*
+(------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(15.1 "WHY ARE YOU NOT USING MODELS IN ELASTICSEARCH?") Tj
+T*
+(-----------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Because the current implementation uses `sentence-transformers` in backend Python for embedding) Tj
+T*
+(generation. There are no Elasticsearch inference API calls in this code.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(15.2 "WHERE IS THE INFERENCE ENDPOINT LOCATED?") Tj
+T*
+(-----------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Inference is effectively inside backend code \(`backend/models/embeddings.py`\) and invoked by search) Tj
+T*
+(routes. No ES inference endpoint is configured in this repo.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(15.3 "HOW IS THE INDEX STRUCTURED, EVERY INDEX, LOGS, VIEWS?") Tj
+T*
+(-------------------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Four indices exist:) Tj
+T*
+() Tj
+T*
+(- `cms-content` for searchable assets + vectors) Tj
+T*
+(- `cms-search-logs` for query telemetry) Tj
+T*
+(- `cms-click-logs` for clicks) Tj
+T*
+(- `cms-content-views` for view events/engagement) Tj
+T*
+() Tj
+T*
+(Mappings and settings are defined in `backend/scripts/setup_indices.py`.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(15.4 "MAIN DIFFERENCE BETWEEN KEYWORD VS HYBRID?") Tj
+T*
+(-------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Keyword = BM25 lexical only.) Tj
+T*
+(Hybrid = BM25 + vector kNN + RRF fusion.) Tj
+T*
+() Tj
+T*
+(Hybrid adds semantic retrieval and usually improves recall and intent matching.) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(15.5 "CHUNK CONFIGURATION AND MODEL LIMITS?") Tj
+T*
+ET
+endstream
+endobj
+38 0 obj
+<< /Length 1677 >>
+stream
+BT
+/F1 10 Tf
+45 770 Td
+(CMS AI Search - Elasticsearch Architecture Deep Dive \(Page 18/18\)) Tj
+T*
+(================================================================================) Tj
+T*
+(--------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(No true chunking pipeline exists now.) Tj
+T*
+(There is only one combined text per asset, truncated to 512 characters before embedding. Model dims) Tj
+T*
+(are 384 \(text\) and 512 \(image/CLIP\).) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(15.6 "WHY UI SHOWING IMAGES? IMPORTED OR THUMBNAIL URL?") Tj
+T*
+(--------------------------------------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(UI displays remote image URLs \(`thumbnail_url` or `url`\) retrieved from Elasticsearch metadata. It) Tj
+T*
+(is not importing static local image assets into the frontend bundle.) Tj
+T*
+() Tj
+T*
+(---) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(16. FINAL TECHNICAL SUMMARY) Tj
+T*
+(---------------------------) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(This project is a metadata-and-vector search platform where Elasticsearch is the retrieval and) Tj
+T*
+(analytics core, while embedding inference currently runs in the FastAPI layer.) Tj
+T*
+() Tj
+T*
+(Elasticsearch is used strongly for:) Tj
+T*
+() Tj
+T*
+(- dense vector storage and ANN search) Tj
+T*
+(- lexical BM25 search) Tj
+T*
+(- hybrid rank fusion \(RRF\)) Tj
+T*
+(- telemetry/event storage) Tj
+T*
+(- analytics aggregations) Tj
+T*
+() Tj
+T*
+(The largest architectural distinction to understand is:) Tj
+T*
+() Tj
+T*
+(- search relevance is Elasticsearch-native,) Tj
+T*
+(- but embedding generation is application-native.) Tj
+T*
+() Tj
+T*
+(That is why you do not see Elasticsearch inference endpoint usage in the present codebase.) Tj
+T*
+ET
+endstream
+endobj
+39 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 40
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000229 00000 n 
+0000000357 00000 n 
+0000000485 00000 n 
+0000000613 00000 n 
+0000000741 00000 n 
+0000000869 00000 n 
+0000000997 00000 n 
+0000001125 00000 n 
+0000001254 00000 n 
+0000001383 00000 n 
+0000001512 00000 n 
+0000001641 00000 n 
+0000001770 00000 n 
+0000001899 00000 n 
+0000002028 00000 n 
+0000002157 00000 n 
+0000002286 00000 n 
+0000002415 00000 n 
+0000002544 00000 n 
+0000004681 00000 n 
+0000006488 00000 n 
+0000008552 00000 n 
+0000010121 00000 n 
+0000011779 00000 n 
+0000013157 00000 n 
+0000014546 00000 n 
+0000015970 00000 n 
+0000017549 00000 n 
+0000019184 00000 n 
+0000020754 00000 n 
+0000022708 00000 n 
+0000024527 00000 n 
+0000026416 00000 n 
+0000028275 00000 n 
+0000030358 00000 n 
+0000032465 00000 n 
+0000034195 00000 n 
+trailer
+<< /Size 40 /Root 1 0 R >>
+startxref
+34266
+%%EOF
