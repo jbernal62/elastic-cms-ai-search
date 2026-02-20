@@ -30,7 +30,7 @@ export default function ComparisonPage() {
         </h1>
         <p className="text-gray-500">
           Compare traditional keyword search (BM25) against hybrid AI search
-          (BM25 + vectors + RRF) side by side.
+          (BM25 + vectors) side by side.
         </p>
       </div>
 

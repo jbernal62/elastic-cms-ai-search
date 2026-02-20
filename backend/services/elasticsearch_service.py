@@ -29,7 +29,7 @@ def hybrid_search(
     region: str | None = None,
     size: int = 20,
 ) -> dict:
-    """BM25 + kNN with RRF fusion."""
+    """BM25 + kNN hybrid search."""
     filters = _build_filters(content_type, category, region)
 
     body = {
@@ -53,20 +53,13 @@ def hybrid_search(
             "query_vector": text_embedding,
             "k": size,
             "num_candidates": max(size * 5, 100),
-            "filter": {"bool": {"filter": filters}} if filters else None,
-        },
-        "rank": {
-            "rrf": {
-                "rank_window_size": 100,
-                "rank_constant": 60,
-            }
         },
         "_source": {"excludes": ["text_embedding", "image_embedding"]},
     }
 
-    # Remove None knn filter
-    if body["knn"]["filter"] is None:
-        del body["knn"]["filter"]
+    # Apply filter to kNN retriever
+    if filters:
+        body["knn"]["filter"] = {"bool": {"filter": filters}}
 
     es = get_es_client()
     return es.search(index=settings.content_index, body=body)

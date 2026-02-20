@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Clock, Filter } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import ResultCard from "../components/ResultCard";
@@ -25,15 +25,19 @@ export default function SearchPage() {
     time: number;
   } | null>(null);
   const [selectedType, setSelectedType] = useState("all");
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
+  const lastQueryRef = useRef<string>("");
 
-  const handleSearch = async (query: string) => {
+  const executeSearch = async (
+    query: string,
+    contentType?: string,
+  ) => {
     setLoading(true);
     try {
-      const contentType =
-        selectedType === "all" ? undefined : selectedType;
+      const filterType =
+        contentType === "all" ? undefined : contentType;
       const resp = await hybridSearch(query, {
-        content_type: contentType,
+        content_type: filterType,
       });
       setResults(resp.results);
       setMeta({
@@ -48,6 +52,19 @@ export default function SearchPage() {
     }
   };
 
+  const handleSearch = (query: string) => {
+    lastQueryRef.current = query;
+    executeSearch(query, selectedType);
+  };
+
+  const handleFilterClick = (type: string) => {
+    setSelectedType(type);
+    const query = lastQueryRef.current;
+    if (query) {
+      executeSearch(query, type);
+    }
+  };
+
   return (
     <div>
       {/* Header */}
@@ -57,7 +74,7 @@ export default function SearchPage() {
         </h1>
         <p className="text-gray-500">
           Search across 2,000+ assets using natural language. Powered by
-          Elasticsearch hybrid search (BM25 + vectors + RRF).
+          Elasticsearch hybrid search (BM25 + vectors).
         </p>
       </div>
 
@@ -80,7 +97,7 @@ export default function SearchPage() {
             {CONTENT_TYPES.map((t) => (
               <button
                 key={t}
-                onClick={() => setSelectedType(t)}
+                onClick={() => handleFilterClick(t)}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
                   selectedType === t
                     ? "bg-indigo-600 text-white"

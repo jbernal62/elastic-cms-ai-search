@@ -105,80 +105,6 @@ async def fetch_unsplash(client: httpx.AsyncClient):
     print(f"  [Unsplash] {count} photos")
 
 
-async def fetch_pixabay(client: httpx.AsyncClient):
-    key = os.environ.get("PIXABAY_API_KEY", "54656142-2ad44b07d880d709171ed0185")
-    count = 0
-    # Images
-    for term in SEARCH_TERMS[:40]:
-        for page in [1, 2, 3]:
-            try:
-                resp = await client.get(
-                    "https://pixabay.com/api/",
-                    params={"key": key, "q": term, "per_page": 30, "page": page, "image_type": "photo"},
-                )
-                resp.raise_for_status()
-                for hit in resp.json().get("hits", []):
-                    region = random_region()
-                    total_items.append({
-                        "title": hit.get("tags", term).split(",")[0].strip(),
-                        "description": hit.get("tags", ""),
-                        "content_type": "image",
-                        "tags": [t.strip() for t in hit.get("tags", "").split(",")],
-                        "category": term, "source": "pixabay",
-                        "author": hit.get("user", "Unknown"),
-                        "license": "Pixabay License",
-                        "url": hit.get("largeImageURL", ""),
-                        "thumbnail_url": hit.get("webformatURL", ""),
-                        "preview_url": hit.get("previewURL", ""),
-                        "file_type": "jpg",
-                        "created_at": random_date(),
-                        "region": region, "geo_location": GEO_POINTS[region],
-                        "width": hit.get("imageWidth", 0), "height": hit.get("imageHeight", 0),
-                        "view_count": hit.get("views", 0),
-                        "download_count": hit.get("downloads", 0),
-                    })
-                    count += 1
-                await asyncio.sleep(0.3)
-            except Exception as e:
-                if "429" in str(e):
-                    await asyncio.sleep(10)
-    # Videos
-    for term in SEARCH_TERMS[:20]:
-        try:
-            resp = await client.get(
-                "https://pixabay.com/api/videos/",
-                params={"key": key, "q": term, "per_page": 20},
-            )
-            resp.raise_for_status()
-            for hit in resp.json().get("hits", []):
-                region = random_region()
-                vids = hit.get("videos", {})
-                medium = vids.get("medium", {})
-                total_items.append({
-                    "title": hit.get("tags", term).split(",")[0].strip(),
-                    "description": hit.get("tags", ""),
-                    "content_type": "video",
-                    "tags": [t.strip() for t in hit.get("tags", "").split(",")],
-                    "category": term, "source": "pixabay",
-                    "author": hit.get("user", "Unknown"),
-                    "license": "Pixabay License",
-                    "url": medium.get("url", ""),
-                    "thumbnail_url": f"https://i.vimeocdn.com/video/{hit.get('picture_id', '')}_295x166.jpg",
-                    "preview_url": "",
-                    "file_type": "mp4",
-                    "created_at": random_date(),
-                    "region": region, "geo_location": GEO_POINTS[region],
-                    "duration_seconds": hit.get("duration", 0),
-                    "width": medium.get("width", 0), "height": medium.get("height", 0),
-                    "view_count": hit.get("views", 0),
-                    "download_count": hit.get("downloads", 0),
-                })
-                count += 1
-            await asyncio.sleep(0.5)
-        except Exception:
-            pass
-    print(f"  [Pixabay] {count} items")
-
 
 async def fetch_wikipedia(client: httpx.AsyncClient):
     count = 0
@@ -396,25 +322,22 @@ async def main():
 
     headers = {"User-Agent": "CMSAISearchDemo/1.0 python-httpx"}
     async with httpx.AsyncClient(timeout=30.0, follow_redirects=True, headers=headers) as client:
-        print("\n[1/7] Unsplash (photos)...")
+        print("\n[1/6] Unsplash (photos)...")
         await fetch_unsplash(client)
 
-        print("[2/7] Pixabay (images + videos)...")
-        await fetch_pixabay(client)
-
-        print("[3/7] Wikipedia (articles)...")
+        print("[2/6] Wikipedia (articles)...")
         await fetch_wikipedia(client)
 
-        print("[4/7] arXiv (research papers)...")
+        print("[3/6] arXiv (research papers)...")
         await fetch_arxiv(client)
 
-        print("[5/7] Project Gutenberg (books)...")
+        print("[4/6] Project Gutenberg (books)...")
         await fetch_gutenberg(client)
 
-        print("[6/7] Internet Archive (mixed)...")
+        print("[5/6] Internet Archive (mixed)...")
         await fetch_internet_archive(client)
 
-        print("[7/7] Freesound (audio)...")
+        print("[6/6] Freesound (audio)...")
         await fetch_freesound(client)
 
     # Deduplicate by URL

@@ -31,7 +31,6 @@ class Settings(BaseSettings):
     # -- API keys for data sources (optional — scripts work with free tiers) --
     unsplash_access_key: str = ""
     pexels_api_key: str = ""
-    pixabay_api_key: str = ""
     freesound_api_key: str = ""
 
     # -- GCS asset storage --

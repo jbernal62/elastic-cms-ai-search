@@ -59,10 +59,10 @@ async def search(
     size: int = Query(20, ge=1, le=100),
 ):
     """
-    Hybrid search combining BM25 keyword matching with semantic vector search,
-    fused using Reciprocal Rank Fusion (RRF).
+    Hybrid search combining BM25 keyword matching with semantic vector search.
     """
     start = time.time()
+    print(f"[SEARCH] q={q!r} content_type={content_type!r} category={category!r} region={region!r}")
     embedding = get_search_embedding(q)
     response = hybrid_search(q, embedding, content_type, category, region, size)
     elapsed_ms = int((time.time() - start) * 1000)

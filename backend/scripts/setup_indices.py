@@ -46,7 +46,7 @@ CMS_CONTENT_MAPPING = {
             "content_type": {"type": "keyword"},  # image, video, audio, document, article, book, paper
             "tags": {"type": "keyword"},
             "category": {"type": "keyword"},
-            "source": {"type": "keyword"},  # unsplash, pexels, pixabay, wikipedia, arxiv, gutenberg, archive
+            "source": {"type": "keyword"},  # unsplash, pexels, wikipedia, arxiv, gutenberg, archive, nasa, wikimedia, met_museum, library_of_congress
             "author": {"type": "keyword"},
             "license": {"type": "keyword"},
             "url": {"type": "keyword"},

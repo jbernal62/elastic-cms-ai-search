@@ -10,7 +10,6 @@ API keys are optional for most sources. Set them in .env for higher rate limits.
 Sources:
   - Unsplash   (photos)          — needs API key
   - Pexels     (photos + videos) — needs API key
-  - Pixabay    (images + videos + music) — needs API key
   - Freesound  (audio/SFX)       — needs API key
   - Wikipedia  (articles)         — no key needed
   - arXiv      (research papers)  — no key needed
@@ -209,91 +208,6 @@ async def fetch_pexels(client: httpx.AsyncClient) -> list[dict]:
     print(f"  [Pexels] Fetched {len(items)} items (photos + videos)")
     return items
 
-
-# ════════════════════════════════════════════════════════════════════
-#  PIXABAY — Images + Videos + Music
-# ════════════════════════════════════════════════════════════════════
-async def fetch_pixabay(client: httpx.AsyncClient) -> list[dict]:
-    key = settings.pixabay_api_key
-    if not key:
-        print("  [Pixabay] No API key — skipping (set PIXABAY_API_KEY)")
-        return []
-
-    items = []
-
-    # Images
-    for term in SEARCH_TERMS[:10]:
-        url = "https://pixabay.com/api/"
-        params = {"key": key, "q": term, "per_page": 20, "image_type": "photo"}
-        try:
-            resp = await client.get(url, params=params)
-            resp.raise_for_status()
-            for hit in resp.json().get("hits", []):
-                region = random_region()
-                items.append({
-                    "title": hit.get("tags", term).split(",")[0].strip(),
-                    "description": hit.get("tags", ""),
-                    "content_type": "image",
-                    "tags": [t.strip() for t in hit.get("tags", "").split(",")],
-                    "category": term,
-                    "source": "pixabay",
-                    "author": hit.get("user", "Unknown"),
-                    "license": "Pixabay License",
-                    "url": hit.get("largeImageURL", ""),
-                    "thumbnail_url": hit.get("webformatURL", ""),
-                    "preview_url": hit.get("previewURL", ""),
-                    "file_type": "jpg",
-                    "created_at": random_date(),
-                    "region": region,
-                    "geo_location": GEO_POINTS[region],
-                    "width": hit.get("imageWidth", 0),
-                    "height": hit.get("imageHeight", 0),
-                    "view_count": hit.get("views", 0),
-                    "download_count": hit.get("downloads", 0),
-                })
-            await asyncio.sleep(0.5)
-        except Exception as e:
-            print(f"  [Pixabay Images] Error for '{term}': {e}")
-
-    # Videos
-    for term in SEARCH_TERMS[:8]:
-        url = "https://pixabay.com/api/videos/"
-        params = {"key": key, "q": term, "per_page": 10}
-        try:
-            resp = await client.get(url, params=params)
-            resp.raise_for_status()
-            for hit in resp.json().get("hits", []):
-                region = random_region()
-                vids = hit.get("videos", {})
-                medium = vids.get("medium", {})
-                items.append({
-                    "title": hit.get("tags", term).split(",")[0].strip(),
-                    "description": hit.get("tags", ""),
-                    "content_type": "video",
-                    "tags": [t.strip() for t in hit.get("tags", "").split(",")],
-                    "category": term,
-                    "source": "pixabay",
-                    "author": hit.get("user", "Unknown"),
-                    "license": "Pixabay License",
-                    "url": medium.get("url", ""),
-                    "thumbnail_url": f"https://i.vimeocdn.com/video/{hit.get('picture_id', '')}_295x166.jpg",
-                    "preview_url": "",
-                    "file_type": "mp4",
-                    "created_at": random_date(),
-                    "region": region,
-                    "geo_location": GEO_POINTS[region],
-                    "duration_seconds": hit.get("duration", 0),
-                    "width": medium.get("width", 0),
-                    "height": medium.get("height", 0),
-                    "view_count": hit.get("views", 0),
-                    "download_count": hit.get("downloads", 0),
-                })
-            await asyncio.sleep(0.5)
-        except Exception as e:
-            print(f"  [Pixabay Videos] Error for '{term}': {e}")
-
-    print(f"  [Pixabay] Fetched {len(items)} items")
-    return items
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -569,29 +483,26 @@ async def main():
     headers = {"User-Agent": "CMSAISearchDemo/1.0 (contact@example.com) python-httpx"}
     async with httpx.AsyncClient(timeout=30.0, follow_redirects=True, headers=headers) as client:
         # APIs that need keys
-        print("\n[1/8] Unsplash (photos)...")
+        print("\n[1/7] Unsplash (photos)...")
         all_items.extend(await fetch_unsplash(client))
 
-        print("[2/8] Pexels (photos + videos)...")
+        print("[2/7] Pexels (photos + videos)...")
         all_items.extend(await fetch_pexels(client))
 
-        print("[3/8] Pixabay (images + videos + music)...")
-        all_items.extend(await fetch_pixabay(client))
-
-        print("[4/8] Freesound (audio/SFX)...")
+        print("[3/7] Freesound (audio/SFX)...")
         all_items.extend(await fetch_freesound(client))
 
         # APIs that don't need keys
-        print("[5/8] Wikipedia (articles)...")
+        print("[4/7] Wikipedia (articles)...")
         all_items.extend(await fetch_wikipedia(client))
 
-        print("[6/8] arXiv (research papers)...")
+        print("[5/7] arXiv (research papers)...")
         all_items.extend(await fetch_arxiv(client))
 
-        print("[7/8] Project Gutenberg (books)...")
+        print("[6/7] Project Gutenberg (books)...")
         all_items.extend(await fetch_gutenberg(client))
 
-        print("[8/8] Internet Archive (mixed)...")
+        print("[7/7] Internet Archive (mixed)...")
         all_items.extend(await fetch_internet_archive(client))
 
     # Save combined metadata
