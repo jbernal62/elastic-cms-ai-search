@@ -1,5 +1,5 @@
 import { Routes, Route, NavLink } from "react-router-dom";
-import { Search, ImageIcon, Columns2, FileText, BarChart3, FolderUp } from "lucide-react";
+import { Search, ImageIcon, FileText, BarChart3, FolderUp } from "lucide-react";
 import SearchPage from "./pages/SearchPage";
 import ImageSearchPage from "./pages/ImageSearchPage";
 import ComparisonPage from "./pages/ComparisonPage";
@@ -10,7 +10,6 @@ import AssetsPage from "./pages/AssetsPage";
 const navItems = [
   { to: "/", icon: Search, label: "Search" },
   { to: "/image-search", icon: ImageIcon, label: "Image Search" },
-  { to: "/compare", icon: Columns2, label: "Compare" },
   { to: "/assets", icon: FolderUp, label: "Assets" },
   { to: "/dashboard", icon: BarChart3, label: "Dashboard" },
 ];

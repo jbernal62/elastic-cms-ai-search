@@ -73,7 +73,7 @@ export default function SearchPage() {
           AI-Powered Content Search
         </h1>
         <p className="text-gray-500">
-          Search across 2,000+ assets using natural language. Powered by
+          Search across 114,383 assets using natural language. Powered by
           Elasticsearch hybrid search (BM25 + vectors).
         </p>
       </div>

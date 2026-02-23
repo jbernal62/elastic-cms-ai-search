@@ -112,7 +112,7 @@ def image_similarity_search(
             "field": "image_embedding",
             "query_vector": image_embedding,
             "k": size,
-            "num_candidates": max(size * 5, 100),
+            "num_candidates": max(size * 50, 1000),
         },
         "_source": {"excludes": ["text_embedding", "image_embedding"]},
     }
@@ -135,7 +135,7 @@ def text_to_image_search(
             "field": "image_embedding",
             "query_vector": clip_text_embedding,
             "k": size,
-            "num_candidates": max(size * 5, 100),
+            "num_candidates": max(size * 50, 1000),
             "filter": {"term": {"content_type": "image"}},
         },
         "_source": {"excludes": ["text_embedding", "image_embedding"]},
