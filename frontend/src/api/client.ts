@@ -78,6 +78,14 @@ export async function compareSearch(
   return data;
 }
 
+export async function textToImageSearch(
+  q: string,
+  size: number = 20
+): Promise<SearchResponse> {
+  const { data } = await api.get("/search/text-to-image", { params: { q, size } });
+  return data;
+}
+
 // ─── Content ─────────────────────────────────────────────────────
 
 export interface ContentDetail extends SearchResult {
